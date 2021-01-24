@@ -54,7 +54,7 @@ def solve_ode(x, time):
         while t < t_end:
             # compute derivatives
             dxdt0 = x[pos+1]
-            dxdt1 = 10.0*math.sin(t) - 0.1*x[pos+1] - x[pos]**3
+            dxdt1 = np.float32(10.0)*math.sin(t) - np.float32(0.1)*x[pos+1] - x[pos]**3
             
             # update state vecotr
             x[pos] += dxdt0 * dt
@@ -66,19 +66,19 @@ def solve_ode(x, time):
         
 # number of independent oscillators
 # to simulate
-trials = 10_000
+trials = 100_000
 
 # time variables
 t0 = 0
 t_end = 100
 dt = 0.01
-t = np.array([t0, t_end, dt])
+t = np.array([t0, t_end, dt], dtype='float32')
 
 # generate random initial condiotions
-init_states = np.random.random_sample(2 * trials)
+init_states = np.random.random_sample(2 * trials).astype('float32')
 
 # manage nr of threads (threads)
-threads_per_block = 32
+threads_per_block = 32*8
 blocks_per_grid = \
     (init_states.size + (threads_per_block - 1)) // threads_per_block
 
@@ -97,3 +97,7 @@ x = init_states.reshape((trials, 2))
 
 # plot the phase space
 plt.scatter(x[:, 0], x[:, 1], s=1)
+plt.xlabel('x_0')
+plt.ylabel('x_1')
+plt.title('Poincare Map of chaotic Duffing oscillator\n'
+          '(100_000 samples)')
